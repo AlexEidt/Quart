@@ -41,28 +41,29 @@ def rgb_mean(image):
     return r, g, b
 
 
-def error(image):
+def error(image, error_type='sse'):
     """
     Compute the error of a given quadrant.
     """
     if image.size == 0:
         return 0
-    h, w = image.shape[:2]
     # Grayscale Image
     image = np.sum(image * np.array([0.299, 0.587, 0.114]), axis=2)
-    return np.sum((image - image.mean()) ** 2)
+    if error_type == 'sse': # Sum of Squared Errors
+        return np.sum((image - image.mean()) ** 2)
+    elif error_type == 'minmax': # Max Difference
+        return image.max() - image.min()
+    else: # Max Difference of mean
+        return np.max(np.abs(image - image.mean()))
 
 
-def quad(edited, image, quads, set_border=True):
+def quad(edited, image, quads, set_border=True, error_type='sse'):
     """
     Split the given image into four quadrants.
     Update the edited image by coloring in the newly split quadrants to the average rgb
     color of the original image.
     Find the quadrant with the maximum error, remove it from the "quads" list and return it. 
     """
-    if image.size == 0:
-        return
-
     h, w = image.shape[:2]
     half_w = w // 2
     half_h = h // 2
@@ -80,10 +81,10 @@ def quad(edited, image, quads, set_border=True):
     if set_border:
         border(edited)   
 
-    quads.append((error(top_left), top_left, edited[:half_h, :half_w]))
-    quads.append((error(top_right), top_right, edited[:half_h, half_w:]))
-    quads.append((error(bottom_left), bottom_left, edited[half_h:, :half_w]))
-    quads.append((error(bottom_right), bottom_right, edited[half_h:, half_w:]))
+    quads.append((error(top_left, error_type=error_type), top_left, edited[:half_h, :half_w]))
+    quads.append((error(top_right, error_type=error_type), top_right, edited[:half_h, half_w:]))
+    quads.append((error(bottom_left, error_type=error_type), bottom_left, edited[half_h:, :half_w]))
+    quads.append((error(bottom_right, error_type=error_type), bottom_right, edited[half_h:, half_w:]))
 
     data = max(quads, key=lambda x: x[0])
     quads.remove(data)
@@ -101,6 +102,7 @@ def main():
     parser.add_argument('-b', '--border', action='store_true', help='Add borders to subimages.')
     parser.add_argument('-img', '--image', action='store_true', help='Save final output image.')
     parser.add_argument('-s', '--step', type=int, default=2, help='Once `iterations > ws`, only save a frame every `(iterations - ws)^s` iterations.')
+    parser.add_argument('-e', '--error', type=str, default='sse', help='Error type: Sum of Squared Error (sse), Min-Max Difference (minmax) or Max Difference (max).')
     args = parser.parse_args()
 
     image = imageio.imread(args.input)
@@ -115,17 +117,17 @@ def main():
     with imageio.save(args.output, fps=args.fps) as writer:
         progress_bar = tqdm(total=args.writestart + args.iterations)
         for _ in range(args.writestart):
-            _, copy, current = quad(current, copy, quads, set_border=args.border)
+            _, copy, current = quad(current, copy, quads, set_border=args.border, error_type=args.error)
             writer.append_data(edited)
             progress_bar.update()
         for _ in range(args.iterations - args.writestart):
-            _, copy, current = quad(current, copy, quads, set_border=args.border)
-            progress_bar.update()
+            _, copy, current = quad(current, copy, quads, set_border=args.border, error_type=args.error)
             i += 1
             if i == step:
                 step *= args.step
                 writer.append_data(edited)
                 i = 0
+            progress_bar.update()
         writer.append_data(edited)
 
     if args.image:

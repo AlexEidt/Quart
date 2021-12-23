@@ -34,7 +34,7 @@ optional arguments:
                         Number of frames to write in sequence initially.
   -b, --border          Add borders to subimages.
   -img, --image         Save final output image.
-  -s STEP, --step STEP  Once `iterations > ws`, only save a frame every (iterations - ws)^s iterations.
+  -s STEP, --step STEP  Once `iterations > ws`, only save a frame every `(iterations - ws)^s` iterations.
 ```
 
 ## Dependencies

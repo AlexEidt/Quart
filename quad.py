@@ -100,7 +100,7 @@ def main():
     parser.add_argument('-ws', '--writestart', type=int, default=0, help='Number of frames to write in sequence initially.')
     parser.add_argument('-b', '--border', action='store_true', help='Add borders to subimages.')
     parser.add_argument('-img', '--image', action='store_true', help='Save final output image.')
-    parser.add_argument('-s', '--step', type=int, default=2, help='Once `iterations > ws`, only save a frame every (iterations - ws)^s iterations.')
+    parser.add_argument('-s', '--step', type=int, default=2, help='Once `iterations > ws`, only save a frame every `(iterations - ws)^s` iterations.')
     args = parser.parse_args()
 
     image = imageio.imread(args.input)

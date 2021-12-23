@@ -36,3 +36,15 @@ optional arguments:
   -img, --image         Save final output image.
   -s STEP, --step STEP  Once `iterations > ws`, only save a frame every (iterations - ws)^s iterations.
 ```
+
+## Dependencies
+
+```
+numpy
+tqdm
+imageio
+imageio-ffmpeg
+
+pip install numpy tqdm imageio
+pip install imageio-ffmpeg --user
+```

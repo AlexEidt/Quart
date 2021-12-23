@@ -1,5 +1,5 @@
 """
-Quadtree Image Segmenation
+Quadtree Image Segmentation
 Alex Eidt
 """
 

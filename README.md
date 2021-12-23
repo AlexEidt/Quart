@@ -2,7 +2,7 @@
 
 Image Segmentation Animation using QuadTree concepts.
 
-<p align="center" width=50%>
+<p align="center">
     <img src="Results/bananas.jpg" alt="Bananas" />
     <img src="Results/bananas_quad.png" alt="Segmented Bananas" />
     <img src="Results/bananas.gif" alt="Bananas GIF" />

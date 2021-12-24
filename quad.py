@@ -119,7 +119,7 @@ def main():
 
             writer.append_data(edited)
             if args.frames:
-                imageio.imwrite(f'{args.output.rsplit(".", 1)[0]}_{i}.png', edited)
+                imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_{i}.png', edited)
 
     if args.image:
         imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_quad.png', edited)

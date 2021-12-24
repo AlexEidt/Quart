@@ -97,12 +97,12 @@ def main():
     parser.add_argument('input', type=str, help='Image to segment.')
     parser.add_argument('output', type=str, help='Output filename.')
     parser.add_argument('-fps', type=int, default=1, help='Output FPS.')
-    parser.add_argument('-i', '--iterations', type=int, default=5000, help='Number of iterations.')
-    parser.add_argument('-ws', '--writestart', type=int, default=0, help='Number of frames to write in sequence initially.')
+    parser.add_argument('-i', '--iterations', type=int, default=12, help='Number of iterations.')
     parser.add_argument('-b', '--border', action='store_true', help='Add borders to subimages.')
     parser.add_argument('-img', '--image', action='store_true', help='Save final output image.')
-    parser.add_argument('-s', '--step', type=int, default=2, help='Once `iterations > ws`, only save a frame every `(iterations - ws)^s` iterations.')
+    parser.add_argument('-s', '--step', type=int, default=2, help='Only save a frame every `(iteration)^s` iterations.')
     parser.add_argument('-e', '--error', type=str, default='sse', help='Error type: Sum of Squared Error (sse), Min-Max Difference (minmax) or Max Difference (max).')
+    parser.add_argument('-f', '--frames', action='store_true', help='Save frames.')
     args = parser.parse_args()
 
     image = imageio.imread(args.input)
@@ -112,23 +112,14 @@ def main():
 
     quads = []
 
-    step = 1
-    i = 0
     with imageio.save(args.output, fps=args.fps) as writer:
-        progress_bar = tqdm(total=args.writestart + args.iterations)
-        for _ in range(args.writestart):
-            _, copy, current = quad(current, copy, quads, set_border=args.border, error_type=args.error)
+        for i in tqdm(range(args.iterations)):
+            for _ in range(args.step ** i):
+                _, copy, current = quad(current, copy, quads, set_border=args.border, error_type=args.error)
+
             writer.append_data(edited)
-            progress_bar.update()
-        for _ in range(args.iterations - args.writestart):
-            _, copy, current = quad(current, copy, quads, set_border=args.border, error_type=args.error)
-            i += 1
-            if i == step:
-                step *= args.step
-                writer.append_data(edited)
-                i = 0
-            progress_bar.update()
-        writer.append_data(edited)
+            if args.frames:
+                imageio.imwrite(f'{args.output.rsplit(".", 1)[0]}_{i}.png', edited)
 
     if args.image:
         imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_quad.png', edited)

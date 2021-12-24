@@ -17,7 +17,7 @@ Image Segmentation Animation using QuadTree concepts.
 ## Usage
 
 ```
-usage: quad.py [-h] [-fps FPS] [-i ITERATIONS] [-ws WRITESTART] [-b] [-img] [-s STEP] input output
+usage: quad.py [-h] [-fps FPS] [-i ITERATIONS] [-b] [-img] [-s STEP] [-e ERROR] [-f] input output
 
 Quadtree Image Segmentation.
 
@@ -30,11 +30,12 @@ optional arguments:
   -fps FPS              Output FPS.
   -i ITERATIONS, --iterations ITERATIONS
                         Number of iterations.
-  -ws WRITESTART, --writestart WRITESTART
-                        Number of frames to write in sequence initially.
   -b, --border          Add borders to subimages.
   -img, --image         Save final output image.
-  -s STEP, --step STEP  Once `iterations > ws`, only save a frame every `(iterations - ws)^s` iterations.
+  -s STEP, --step STEP  Only save a frame every `(iteration)^s` iterations.
+  -e ERROR, --error ERROR
+                        Error type: Sum of Squared Error (sse), Min-Max Difference (minmax) or Max Difference (max).
+  -f, --frames          Save frames.
 ```
 
 ## Dependencies

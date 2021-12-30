@@ -57,39 +57,45 @@ def error(image, error_type='sse'):
         return np.max(np.abs(image - image.mean()))
 
 
-def quad(edited, image, quads, set_border=True, error_type='sse'):
+def quad(iterations, image, edited, quads, set_border=True, error_type='sse'):
     """
     Split the given image into four quadrants.
     Update the edited image by coloring in the newly split quadrants to the average rgb
     color of the original image.
     Find the quadrant with the maximum error, remove it from the "quads" list and return it. 
     """
-    h, w = image.shape[:2]
-    half_w = w // 2
-    half_h = h // 2
+    if iterations < 0:
+        return image, edited
+    for _ in range(iterations):
+        h, w = image.shape[:2]
+        half_w = w // 2
+        half_h = h // 2
 
-    top_left = image[:half_h, :half_w]
-    top_right = image[:half_h, half_w:]
-    bottom_left = image[half_h:, :half_w]
-    bottom_right = image[half_h:, half_w:]
+        top_left = image[:half_h, :half_w]
+        top_right = image[:half_h, half_w:]
+        bottom_left = image[half_h:, :half_w]
+        bottom_right = image[half_h:, half_w:]
 
-    edited[:half_h, :half_w] = rgb_mean(top_left)
-    edited[:half_h, half_w:] = rgb_mean(top_right)
-    edited[half_h:, :half_w] = rgb_mean(bottom_left)
-    edited[half_h:, half_w:] = rgb_mean(bottom_right)     
+        edited[:half_h, :half_w] = rgb_mean(top_left)
+        edited[:half_h, half_w:] = rgb_mean(top_right)
+        edited[half_h:, :half_w] = rgb_mean(bottom_left)
+        edited[half_h:, half_w:] = rgb_mean(bottom_right)     
 
-    if set_border:
-        border(edited)   
+        if set_border:
+            border(edited)   
 
-    quads.append((error(top_left, error_type=error_type), top_left, edited[:half_h, :half_w]))
-    quads.append((error(top_right, error_type=error_type), top_right, edited[:half_h, half_w:]))
-    quads.append((error(bottom_left, error_type=error_type), bottom_left, edited[half_h:, :half_w]))
-    quads.append((error(bottom_right, error_type=error_type), bottom_right, edited[half_h:, half_w:]))
+        quads.append((error(top_left, error_type=error_type), top_left, edited[:half_h, :half_w]))
+        quads.append((error(top_right, error_type=error_type), top_right, edited[:half_h, half_w:]))
+        quads.append((error(bottom_left, error_type=error_type), bottom_left, edited[half_h:, :half_w]))
+        quads.append((error(bottom_right, error_type=error_type), bottom_right, edited[half_h:, half_w:]))
 
-    data = max(quads, key=lambda x: x[0])
-    quads.remove(data)
+        data = max(quads, key=lambda x: x[0])
+        quads.remove(data)
 
-    return data
+        image = data[1]
+        edited = data[2]
+
+    return data[1:]
 
 
 def main():
@@ -97,6 +103,7 @@ def main():
     parser.add_argument('input', type=str, help='Image to segment.')
     parser.add_argument('output', type=str, help='Output filename.')
     parser.add_argument('-fps', type=int, default=1, help='Output FPS.')
+    parser.add_argument('-g', '--gif', action='store_true', help='Output as gif.')
     parser.add_argument('-i', '--iterations', type=int, default=12, help='Number of iterations.')
     parser.add_argument('-b', '--border', action='store_true', help='Add borders to subimages.')
     parser.add_argument('-img', '--image', action='store_true', help='Save final output image.')
@@ -105,24 +112,41 @@ def main():
     parser.add_argument('-f', '--frames', action='store_true', help='Save frames.')
     args = parser.parse_args()
 
-    image = imageio.imread(args.input)
-    copy = image.copy()
-    edited = image.copy()
-    current = edited
+    # Try to load an image from the given input. If this fails, assume it's a video.
+    try:
+        image = imageio.imread(args.input)
+    except Exception:
+        # Convert every frame of input video to quadtree image and store as output video.
+        with imageio.read(args.input) as video:
+            data = video.get_meta_data()
+            with imageio.save(args.output, fps=data['fps']) as writer:
+                quads = []
+                for frame in tqdm(video, total=int(data['duration'] * data['fps'])):
+                    copy = frame.copy()
+                    edited = copy
+                    quad(args.iterations, frame, edited, quads, set_border=args.border, error_type=args.error)
+                    writer.append_data(edited)
+                    quads.clear()
+    else:
+        # Convert input image to quadtree image and save as output image.
+        copy = image.copy()
+        edited = copy
 
-    quads = []
+        quads = []
 
-    with imageio.save(args.output, fps=args.fps) as writer:
-        for i in tqdm(range(args.iterations)):
-            for _ in range(args.step ** i):
-                _, copy, current = quad(current, copy, quads, set_border=args.border, error_type=args.error)
+        if args.gif:
+            with imageio.save(args.output, fps=args.fps) as writer:
+                for i in tqdm(range(args.iterations)):
+                    image, edited = quad(args.step ** i, image, edited, quads, set_border=args.border, error_type=args.error)
 
-            writer.append_data(edited)
-            if args.frames:
-                imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_{i}.png', edited)
+                    writer.append_data(copy)
+                    if args.frames:
+                        imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_{i}.png', copy)
+        else:
+            quad(args.iterations, image, edited, quads, set_border=args.border, error_type=args.error)
 
-    if args.image:
-        imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_quad.png', edited)
+        if args.image:
+            imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_quad.png', copy)
 
 
 if __name__ == '__main__':

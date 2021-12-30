@@ -2,22 +2,23 @@
 
 Image Segmentation Animation using QuadTree concepts.
 
-<p align="center">
-    <img src="Results/bananas.jpg" alt="Bananas" />
-    <img src="Results/bananas_quad.png" alt="Segmented Bananas" />
-    <img src="Results/bananas.gif" alt="Bananas GIF" />
-    <img src="Results/donuts.jpg" alt="Donuts" />
-    <img src="Results/donuts_quad.png" alt="Segmented Donuts" />
-    <img src="Results/donuts.gif" alt="Donuts GIF" />
-    <img src="Results/forest.jpg" alt="Forest" />
-    <img src="Results/forest_quad.png" alt="Segmented Forest" />
-    <img src="Results/forest.gif" alt="Forest GIF" />
-</p>
+## Images
+
+<img src="Results/bananas.jpg" alt="Bananas" />
+<img src="Results/bananas_quad.png" alt="Segmented Bananas" />
+<img src="Results/bananas.gif" alt="Bananas GIF" />
+<img src="Results/donuts.jpg" alt="Donuts" />
+<img src="Results/donuts_quad.png" alt="Segmented Donuts" />
+<img src="Results/donuts.gif" alt="Donuts GIF" />
+
+## Video
+
+<img src="Results/columbo.gif" alt="Quadtree Video Example" />
 
 ## Usage
 
 ```
-usage: quad.py [-h] [-fps FPS] [-i ITERATIONS] [-b] [-img] [-s STEP] [-e ERROR] [-f] input output
+usage: quad.py [-h] [-fps FPS] [-g] [-i ITERATIONS] [-b] [-img] [-s STEP] [-e ERROR] [-f] input output
 
 Quadtree Image Segmentation.
 
@@ -28,6 +29,7 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -fps FPS              Output FPS.
+  -g, --gif             Output as gif.
   -i ITERATIONS, --iterations ITERATIONS
                         Number of iterations.
   -b, --border          Add borders to subimages.

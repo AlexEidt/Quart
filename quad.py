@@ -142,11 +142,12 @@ def main():
                     writer.append_data(copy)
                     if args.frames:
                         imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_{i}.png', copy)
+
+            if args.image:
+                imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_quad.png', copy)
         else:
             quad(args.iterations, image, edited, quads, set_border=args.border, error_type=args.error)
-
-        if args.image:
-            imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_quad.png', copy)
+            imageio.imsave(args.output, copy)
 
 
 if __name__ == '__main__':

@@ -103,6 +103,7 @@ def main():
     parser.add_argument('input', type=str, help='Image to segment.')
     parser.add_argument('output', type=str, help='Output filename.')
     parser.add_argument('-fps', type=int, default=1, help='Output FPS.')
+    parser.add_argument('-q', '--quality', type=int, default=5, help='Quality of the output video.')
     parser.add_argument('-g', '--gif', action='store_true', help='Output as gif.')
     parser.add_argument('-i', '--iterations', type=int, default=12, help='Number of iterations.')
     parser.add_argument('-b', '--border', action='store_true', help='Add borders to subimages.')
@@ -119,7 +120,7 @@ def main():
         # Convert every frame of input video to quadtree image and store as output video.
         with imageio.read(args.input) as video:
             data = video.get_meta_data()
-            with imageio.save(args.output, fps=data['fps']) as writer:
+            with imageio.save(args.output, fps=data['fps'], quality=min(max(args.quality, 0), 10)) as writer:
                 quads = []
                 for frame in tqdm(video, total=int(data['duration'] * data['fps'])):
                     copy = frame.copy()

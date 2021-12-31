@@ -18,7 +18,7 @@ Image Segmentation Animation using QuadTree concepts.
 ## Usage
 
 ```
-usage: quad.py [-h] [-fps FPS] [-g] [-i ITERATIONS] [-b] [-img] [-s STEP] [-e ERROR] [-f] input output
+usage: quad.py [-h] [-fps FPS] [-q QUALITY] [-g] [-i ITERATIONS] [-b] [-img] [-s STEP] [-e ERROR] [-f] input output
 
 Quadtree Image Segmentation.
 
@@ -29,6 +29,8 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -fps FPS              Output FPS.
+  -q QUALITY, --quality QUALITY
+                        Quality of the output video.
   -g, --gif             Output as gif.
   -i ITERATIONS, --iterations ITERATIONS
                         Number of iterations.

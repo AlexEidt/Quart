@@ -2,6 +2,10 @@
 
 Image Segmentation Animation using QuadTree concepts.
 
+1. Split the Image into four quadrants.
+2. Split the quadrant with the highest error into 4 quadrants.
+3. Repeat N times.
+
 ## Images
 
 <img src="Results/bananas.jpg" alt="Bananas" />

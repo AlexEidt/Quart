@@ -1,6 +1,11 @@
 """
 Quadtree Image Segmentation
 Alex Eidt
+
+Split the image into four quadrants.
+Find the quadrant with the highest error.
+Split that quadrant into four quadrants.
+Repeat N times.
 """
 
 import argparse

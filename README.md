@@ -22,7 +22,7 @@ Image Segmentation Animation using QuadTree concepts.
 ## Usage
 
 ```
-usage: quad.py [-h] [-fps FPS] [-q QUALITY] [-g] [-i ITERATIONS] [-b] [-img] [-s STEP] [-e ERROR] [-f] input output
+usage: quad.py [-h] [-fps FPS] [-q QUALITY] [-a] [-i ITERATIONS] [-b] [-img] [-s STEP] [-e ERROR] [-f] input output
 
 Quadtree Image Segmentation.
 
@@ -35,15 +35,15 @@ optional arguments:
   -fps FPS              Output FPS.
   -q QUALITY, --quality QUALITY
                         Quality of the output video.
-  -g, --gif             Output as gif.
+  -a, --animate         Save intermediary frames as video.
   -i ITERATIONS, --iterations ITERATIONS
                         Number of iterations.
   -b, --border          Add borders to subimages.
   -img, --image         Save final output image.
-  -s STEP, --step STEP  Only save a frame every `(iteration)^s` iterations.
+  -s STEP, --step STEP  Only save a frame every `s^(iteration)` iterations. For use with --animate only.
   -e ERROR, --error ERROR
                         Error type: Sum of Squared Error (sse), Min-Max Difference (minmax) or Max Difference (max).
-  -f, --frames          Save frames.
+  -f, --frames          Save intermediary frames as images.
 ```
 
 ## Dependencies

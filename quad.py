@@ -69,7 +69,7 @@ def quad(iterations, image, edited, quads, set_border=True, error_type='sse'):
     color of the original image.
     Find the quadrant with the maximum error, remove it from the "quads" list and return it. 
     """
-    if iterations < 0:
+    if iterations <= 0:
         return image, edited
     for _ in range(iterations):
         h, w = image.shape[:2]
@@ -109,18 +109,18 @@ def main():
     parser.add_argument('output', type=str, help='Output filename.')
     parser.add_argument('-fps', type=int, default=1, help='Output FPS.')
     parser.add_argument('-q', '--quality', type=int, default=5, help='Quality of the output video.')
-    parser.add_argument('-g', '--gif', action='store_true', help='Output as gif.')
+    parser.add_argument('-a', '--animate', action='store_true', help='Save intermediary frames as video.')
     parser.add_argument('-i', '--iterations', type=int, default=12, help='Number of iterations.')
     parser.add_argument('-b', '--border', action='store_true', help='Add borders to subimages.')
     parser.add_argument('-img', '--image', action='store_true', help='Save final output image.')
-    parser.add_argument('-s', '--step', type=int, default=2, help='Only save a frame every `(iteration)^s` iterations.')
+    parser.add_argument('-s', '--step', type=float, default=2.0, help='Only save a frame every `s^(iteration)` iterations. For use with --animate only.')
     parser.add_argument('-e', '--error', type=str, default='sse', help='Error type: Sum of Squared Error (sse), Min-Max Difference (minmax) or Max Difference (max).')
-    parser.add_argument('-f', '--frames', action='store_true', help='Save frames.')
+    parser.add_argument('-f', '--frames', action='store_true', help='Save intermediary frames as images.')
     args = parser.parse_args()
 
     # Try to load an image from the given input. If this fails, assume it's a video.
     try:
-        image = imageio.imread(args.input)
+        image = imageio.imread(args.input)[:, :, :3]
     except Exception:
         # Convert every frame of input video to quadtree image and store as output video.
         with imageio.read(args.input) as video:
@@ -140,10 +140,10 @@ def main():
 
         quads = []
 
-        if args.gif:
+        if args.animate:
             with imageio.save(args.output, fps=args.fps) as writer:
                 for i in tqdm(range(args.iterations)):
-                    image, edited = quad(args.step ** i, image, edited, quads, set_border=args.border, error_type=args.error)
+                    image, edited = quad(int(args.step ** i), image, edited, quads, set_border=args.border, error_type=args.error)
 
                     writer.append_data(copy)
                     if args.frames:

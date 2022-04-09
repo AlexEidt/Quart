@@ -44,6 +44,7 @@ optional arguments:
   -e ERROR, --error ERROR
                         Error type: Sum of Squared Error (sse), Min-Max Difference (minmax) or Max Difference (max).
   -f, --frames          Save intermediary frames as images.
+  -au, --audio          Add audio from the input file to the output file.
 ```
 
 ## Dependencies

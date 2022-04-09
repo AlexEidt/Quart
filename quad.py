@@ -10,8 +10,10 @@ Repeat N times.
 
 import argparse
 import imageio
+import imageio_ffmpeg
 import numpy as np
 from tqdm import tqdm
+from numba import njit, prange
 
 
 def border(image):
@@ -116,6 +118,7 @@ def main():
     parser.add_argument('-s', '--step', type=float, default=2.0, help='Only save a frame every `s^(iteration)` iterations. For use with --animate only.')
     parser.add_argument('-e', '--error', type=str, default='sse', help='Error type: Sum of Squared Error (sse), Min-Max Difference (minmax) or Max Difference (max).')
     parser.add_argument('-f', '--frames', action='store_true', help='Save intermediary frames as images.')
+    parser.add_argument('-au', '--audio', action='store_true', help='Add audio from the input file to the output file.')
     args = parser.parse_args()
 
     # Try to load an image from the given input. If this fails, assume it's a video.
@@ -125,14 +128,24 @@ def main():
         # Convert every frame of input video to quadtree image and store as output video.
         with imageio.read(args.input) as video:
             data = video.get_meta_data()
-            with imageio.save(args.output, fps=data['fps'], quality=min(max(args.quality, 0), 10)) as writer:
-                quads = []
-                for frame in tqdm(video, total=int(data['duration'] * data['fps'])):
-                    copy = frame.copy()
-                    edited = copy
-                    quad(args.iterations, frame, edited, quads, set_border=args.border, error_type=args.error)
-                    writer.append_data(edited)
-                    quads.clear()
+
+            kwargs = {'fps': data['fps'], 'quality': min(max(args.quality, 0), 10)}
+            if args.audio:
+                kwargs['audio_path'] = args.input
+
+            writer = imageio_ffmpeg.write_frames(args.output, data['source_size'], **kwargs)
+            writer.send(None)
+
+            quads = []
+            for frame in tqdm(video, total=int(data['fps'] * data['duration'] + 0.5)):
+                copy = frame.copy()
+                edited = copy
+                quad(args.iterations, frame, edited, quads, set_border=args.border, error_type=args.error)
+                writer.send(edited)
+                quads.clear()
+
+            writer.close()
+
     else:
         # Convert input image to quadtree image and save as output image.
         copy = image.copy()

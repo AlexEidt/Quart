@@ -14,8 +14,8 @@ import imageio_ffmpeg
 import numpy as np
 from tqdm import tqdm
 
-WIDTH_PERCENT = 2
-HEIGHT_PERCENT = 2
+WIDTH_PERCENT = 1
+HEIGHT_PERCENT = 1
 
 def border(image):
     """
@@ -74,23 +74,23 @@ def quad(iterations, image, edited, quads, set_border=True):
     for _ in range(iterations):
         h, w = image.shape[:2]
 
-        half_w = w // 2
-        half_h = h // 2
-
-        top_left = image[:half_h, :half_w]
-        top_right = image[:half_h, half_w:]
-        bottom_left = image[half_h:, :half_w]
-        bottom_right = image[half_h:, half_w:]
-
-        edited[:half_h, :half_w] = rgb_mean(top_left)
-        edited[:half_h, half_w:] = rgb_mean(top_right)
-        edited[half_h:, :half_w] = rgb_mean(bottom_left)
-        edited[half_h:, half_w:] = rgb_mean(bottom_right)     
-
-        if set_border:
-            border(edited)   
-
         if h > oh * HEIGHT_PERCENT / 100 and w > ow * WIDTH_PERCENT / 100:
+            half_w = w // 2
+            half_h = h // 2
+
+            top_left = image[:half_h, :half_w]
+            top_right = image[:half_h, half_w:]
+            bottom_left = image[half_h:, :half_w]
+            bottom_right = image[half_h:, half_w:]
+
+            edited[:half_h, :half_w] = rgb_mean(top_left)
+            edited[:half_h, half_w:] = rgb_mean(top_right)
+            edited[half_h:, :half_w] = rgb_mean(bottom_left)
+            edited[half_h:, half_w:] = rgb_mean(bottom_right)     
+
+            if set_border:
+                border(edited)   
+
             quads.append((error(top_left), top_left, edited[:half_h, :half_w]))
             quads.append((error(top_right), top_right, edited[:half_h, half_w:]))
             quads.append((error(bottom_left), bottom_left, edited[half_h:, :half_w]))

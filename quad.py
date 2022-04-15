@@ -13,8 +13,9 @@ import imageio
 import imageio_ffmpeg
 import numpy as np
 from tqdm import tqdm
-from numba import njit, prange
 
+WIDTH_PERCENT = 2
+HEIGHT_PERCENT = 2
 
 def border(image):
     """
@@ -48,23 +49,19 @@ def rgb_mean(image):
     return r, g, b
 
 
-def error(image, error_type='sse'):
+def error(image):
     """
     Compute the error of a given quadrant.
     """
     if image.size == 0:
         return 0
     # Grayscale Image
+    h, w = image.shape[:2]
     image = np.sum(image * np.array([0.299, 0.587, 0.114]), axis=2)
-    if error_type == 'sse': # Sum of Squared Errors
-        return np.sum((image - image.mean()) ** 2)
-    elif error_type == 'minmax': # Max Difference
-        return image.max() - image.min()
-    else: # Max Difference of mean
-        return np.max(np.abs(image - image.mean()))
+    return np.sum((image - image.mean()) ** 2) / (h * w)
 
 
-def quad(iterations, image, edited, quads, set_border=True, error_type='sse'):
+def quad(iterations, image, edited, quads, set_border=True):
     """
     Split the given image into four quadrants.
     Update the edited image by coloring in the newly split quadrants to the average rgb
@@ -73,8 +70,10 @@ def quad(iterations, image, edited, quads, set_border=True, error_type='sse'):
     """
     if iterations <= 0:
         return image, edited
+    oh, ow = image.shape[:2]
     for _ in range(iterations):
         h, w = image.shape[:2]
+
         half_w = w // 2
         half_h = h // 2
 
@@ -91,16 +90,20 @@ def quad(iterations, image, edited, quads, set_border=True, error_type='sse'):
         if set_border:
             border(edited)   
 
-        quads.append((error(top_left, error_type=error_type), top_left, edited[:half_h, :half_w]))
-        quads.append((error(top_right, error_type=error_type), top_right, edited[:half_h, half_w:]))
-        quads.append((error(bottom_left, error_type=error_type), bottom_left, edited[half_h:, :half_w]))
-        quads.append((error(bottom_right, error_type=error_type), bottom_right, edited[half_h:, half_w:]))
+        if h > oh * HEIGHT_PERCENT / 100 and w > ow * WIDTH_PERCENT / 100:
+            quads.append((error(top_left), top_left, edited[:half_h, :half_w]))
+            quads.append((error(top_right), top_right, edited[:half_h, half_w:]))
+            quads.append((error(bottom_left), bottom_left, edited[half_h:, :half_w]))
+            quads.append((error(bottom_right), bottom_right, edited[half_h:, half_w:]))
 
-        data = max(quads, key=lambda x: x[0])
-        quads.remove(data)
+        if quads:
+            data = max(quads, key=lambda x: x[0])
+            quads.remove(data)
 
-        image = data[1]
-        edited = data[2]
+            image = data[1]
+            edited = data[2]
+        else:
+            break
 
     return data[1:]
 
@@ -116,7 +119,6 @@ def main():
     parser.add_argument('-b', '--border', action='store_true', help='Add borders to subimages.')
     parser.add_argument('-img', '--image', action='store_true', help='Save final output image.')
     parser.add_argument('-s', '--step', type=float, default=2.0, help='Only save a frame every `s^(iteration)` iterations. For use with --animate only.')
-    parser.add_argument('-e', '--error', type=str, default='sse', help='Error type: Sum of Squared Error (sse), Min-Max Difference (minmax) or Max Difference (max).')
     parser.add_argument('-f', '--frames', action='store_true', help='Save intermediary frames as images.')
     parser.add_argument('-au', '--audio', action='store_true', help='Add audio from the input file to the output file.')
     args = parser.parse_args()
@@ -140,7 +142,7 @@ def main():
             for frame in tqdm(video, total=int(data['fps'] * data['duration'] + 0.5)):
                 copy = frame.copy()
                 edited = copy
-                quad(args.iterations, frame, edited, quads, set_border=args.border, error_type=args.error)
+                quad(args.iterations, frame, edited, quads, set_border=args.border)
                 writer.send(edited)
                 quads.clear()
 
@@ -156,7 +158,7 @@ def main():
         if args.animate:
             with imageio.save(args.output, fps=args.fps) as writer:
                 for i in tqdm(range(args.iterations)):
-                    image, edited = quad(int(args.step ** i), image, edited, quads, set_border=args.border, error_type=args.error)
+                    image, edited = quad(int(args.step ** i), image, edited, quads, set_border=args.border)
 
                     writer.append_data(copy)
                     if args.frames:
@@ -165,7 +167,7 @@ def main():
             if args.image:
                 imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_quad.png', copy)
         else:
-            quad(args.iterations, image, edited, quads, set_border=args.border, error_type=args.error)
+            quad(args.iterations, image, edited, quads, set_border=args.border)
             imageio.imsave(args.output, copy)
 
 

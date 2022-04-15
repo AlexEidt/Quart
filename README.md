@@ -8,16 +8,14 @@ Image Segmentation Animation using QuadTree concepts.
 
 ## Images
 
-<img src="Results/bananas.jpg" alt="Bananas" />
 <img src="Results/bananas_quad.png" alt="Segmented Bananas" />
-<img src="Results/bananas.gif" alt="Bananas GIF" />
-<img src="Results/donuts.jpg" alt="Donuts" />
-<img src="Results/donuts_quad.png" alt="Segmented Donuts" />
-<img src="Results/donuts.gif" alt="Donuts GIF" />
+<img src="Results/butterfly_quad.png" alt="Segmented Image of a Butterfly" />
+<img src="Results/canyon_quad.png" alt="Segmented Image of a Canyon" />
+<img src="Results/rocks_quad.png" alt="Segmented Image of some Rocks" />
 
 ## Video
 
-<img src="Results/columbo.gif" alt="Quadtree Video Example" />
+<img src="Results/wind.gif" alt="Wind Turbines Video" />
 
 ## Usage
 
@@ -41,8 +39,6 @@ optional arguments:
   -b, --border          Add borders to subimages.
   -img, --image         Save final output image.
   -s STEP, --step STEP  Only save a frame every `s^(iteration)` iterations. For use with --animate only.
-  -e ERROR, --error ERROR
-                        Error type: Sum of Squared Error (sse), Min-Max Difference (minmax) or Max Difference (max).
   -f, --frames          Save intermediary frames as images.
   -au, --audio          Add audio from the input file to the output file.
 ```

@@ -14,8 +14,8 @@ import imageio_ffmpeg
 import numpy as np
 from tqdm import tqdm
 
-WIDTH_PERCENT = 1
-HEIGHT_PERCENT = 1
+MIN_WIDTH = 10
+MIN_HEIGHT = 10
 
 def border(image):
     """
@@ -74,7 +74,7 @@ def quad(iterations, image, edited, quads, set_border=True):
     for _ in range(iterations):
         h, w = image.shape[:2]
 
-        if h > oh * HEIGHT_PERCENT / 100 and w > ow * WIDTH_PERCENT / 100:
+        if h > MIN_HEIGHT and w > MIN_WIDTH:
             half_w = w // 2
             half_h = h // 2
 

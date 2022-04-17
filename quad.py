@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Quadtree Image Segmentation
 Alex Eidt
@@ -13,9 +15,6 @@ import imageio
 import imageio_ffmpeg
 import numpy as np
 from tqdm import tqdm
-
-MIN_WIDTH = 10
-MIN_HEIGHT = 10
 
 
 def border(image):
@@ -62,7 +61,9 @@ def error(image):
     return np.sum((image - image.mean()) ** 2) / (h * w)
 
 
-def quad(iterations, image, edited, quads, set_border=True):
+def quad(
+    iterations, image, edited, quads, min_width=10, min_height=10, set_border=True
+):
     """
     Split the given image into four quadrants.
     Update the edited image by coloring in the newly split quadrants to the average rgb
@@ -75,7 +76,7 @@ def quad(iterations, image, edited, quads, set_border=True):
     for _ in range(iterations):
         h, w = image.shape[:2]
 
-        if h > MIN_HEIGHT and w > MIN_WIDTH:
+        if h > min_height and w > min_width:
             half_w = w // 2
             half_h = h // 2
 
@@ -151,6 +152,20 @@ def main():
         action="store_true",
         help="Add audio from the input file to the output file.",
     )
+    parser.add_argument(
+        "-mw",
+        "--minwidth",
+        type=int,
+        default=10,
+        help="Minimum width of the smallest image quadrant.",
+    )
+    parser.add_argument(
+        "-mh",
+        "--minheight",
+        type=int,
+        default=10,
+        help="Minimum height of the smallest image quadrant.",
+    )
     args = parser.parse_args()
 
     # Try to load an image from the given input. If this fails, assume it's a video.
@@ -174,7 +189,15 @@ def main():
             for frame in tqdm(video, total=int(data["fps"] * data["duration"] + 0.5)):
                 copy = frame.copy()
                 edited = copy
-                quad(args.iterations, frame, edited, quads, set_border=args.border)
+                quad(
+                    args.iterations,
+                    frame,
+                    edited,
+                    quads,
+                    min_width=args.minwidth,
+                    min_height=args.minheight,
+                    set_border=args.border,
+                )
                 writer.send(edited)
                 quads.clear()
 
@@ -195,6 +218,8 @@ def main():
                         image,
                         edited,
                         quads,
+                        min_width=args.minwidth,
+                        min_height=args.minheight,
                         set_border=args.border,
                     )
 
@@ -205,7 +230,15 @@ def main():
             if args.image:
                 imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_quad.png', copy)
         else:
-            quad(args.iterations, image, edited, quads, set_border=args.border)
+            quad(
+                args.iterations,
+                image,
+                edited,
+                quads,
+                min_width=args.minwidth,
+                min_height=args.minheight,
+                set_border=args.border,
+            )
             imageio.imsave(args.output, copy)
 
 

@@ -12,6 +12,7 @@ Image Segmentation Animation using QuadTree concepts.
 <img src="Results/butterfly_quad.png" alt="Segmented Image of a Butterfly" />
 <img src="Results/canyon_quad.png" alt="Segmented Image of a Canyon" />
 <img src="Results/rocks_quad.png" alt="Segmented Image of some Rocks" />
+<img src="Results/houses_quad.png" alt="Segmented Image of some Houses" />
 
 ## Video
 
@@ -41,6 +42,10 @@ optional arguments:
   -s STEP, --step STEP  Only save a frame every `s^(iteration)` iterations. For use with --animate only.
   -f, --frames          Save intermediary frames as images.
   -au, --audio          Add audio from the input file to the output file.
+  -mw MIN_WIDTH, --min-width MIN_WIDTH
+                        Minimum width of the smallest image quadrant.
+  -mh MIN_HEIGHT, --min-height MIN_HEIGHT
+                        Minimum height of the smallest image quadrant.
 ```
 
 ## Dependencies

@@ -11,7 +11,6 @@ Repeat N times.
 """
 
 import argparse
-from lib2to3.pytree import convert
 import imageio
 import imageio_ffmpeg
 import numpy as np

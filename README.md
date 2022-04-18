@@ -31,8 +31,6 @@ Image Segmentation Animation using QuadTree concepts.
 ## Usage
 
 ```
-usage: quad.py [-h] [-fps FPS] [-q QUALITY] [-a] [-i ITERATIONS] [-b] [-img] [-s STEP] [-e ERROR] [-f] input output
-
 Quadtree Image Segmentation.
 
 positional arguments:
@@ -66,6 +64,5 @@ tqdm
 imageio
 imageio-ffmpeg
 
-pip install numpy tqdm imageio
-pip install imageio-ffmpeg --user
+pip install numpy tqdm imageio imageio-ffmpeg
 ```

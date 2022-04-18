@@ -11,6 +11,7 @@ Repeat N times.
 """
 
 import argparse
+from lib2to3.pytree import convert
 import imageio
 import imageio_ffmpeg
 import numpy as np
@@ -57,7 +58,7 @@ def error(image):
         return 0
     # Grayscale Image
     h, w = image.shape[:2]
-    image = np.sum(image * np.array([0.299, 0.587, 0.114]), axis=2)
+    image = (image * np.array([0.299, 0.587, 0.114])).sum(axis=2)
     return np.sum((image - image.mean()) ** 2) / (h * w)
 
 
@@ -72,7 +73,7 @@ def quad(
     """
     if iterations <= 0:
         return image, edited
-    oh, ow = image.shape[:2]
+
     for _ in range(iterations):
         h, w = image.shape[:2]
 
@@ -110,13 +111,17 @@ def quad(
     return data[1:]
 
 
-def main():
+def parse_args():
     parser = argparse.ArgumentParser(description="Quadtree Image Segmentation.")
     parser.add_argument("input", type=str, help="Image to segment.")
     parser.add_argument("output", type=str, help="Output filename.")
     parser.add_argument("-fps", type=int, default=1, help="Output FPS.")
     parser.add_argument(
-        "-q", "--quality", type=int, default=5, help="Quality of the output video."
+        "-q",
+        "--quality",
+        type=int,
+        default=5,
+        help="Quality of the output video. (0-10), 0 worst, 10 best.",
     )
     parser.add_argument(
         "-a",
@@ -131,7 +136,10 @@ def main():
         "-b", "--border", action="store_true", help="Add borders to subimages."
     )
     parser.add_argument(
-        "-img", "--image", action="store_true", help="Save final output image."
+        "-img",
+        "--image",
+        action="store_true",
+        help="Save final output image. For use with --animate only.",
     )
     parser.add_argument(
         "-s",
@@ -166,70 +174,88 @@ def main():
         default=10,
         help="Minimum height of the smallest image quadrant.",
     )
-    args = parser.parse_args()
+
+    return parser.parse_args()
+
+
+def create_video(args):
+    """
+    Convert every frame of a video to a quadtree image.
+    """
+    # Convert every frame of input video to quadtree image and store as output video.
+    with imageio.read(args.input) as video:
+        data = video.get_meta_data()
+
+        kwargs = {"fps": data["fps"], "quality": min(max(args.quality, 0), 10)}
+        if args.audio:
+            kwargs["audio_path"] = args.input
+
+        writer = imageio_ffmpeg.write_frames(args.output, data["source_size"], **kwargs)
+        writer.send(None)
+
+        quads = []
+        for frame in tqdm(video, total=int(data["fps"] * data["duration"] + 0.5)):
+            copy = frame.copy()
+            edited = copy
+            quad(
+                args.iterations,
+                frame,
+                edited,
+                quads,
+                min_width=args.minwidth,
+                min_height=args.minheight,
+                set_border=args.border,
+            )
+            writer.send(edited)
+            quads.clear()
+
+        writer.close()
+
+
+def create_animation(args, copy):
+    """
+    Create a gif/video of a single quadtree image being transformed. Every frame shows
+    the quadtree image segmentation process as the iterations increase. The result is a video
+    that incrementally shows the image being segmented.
+    """
+    quads = []
+    with imageio.save(args.output, fps=args.fps) as writer:
+        for i in tqdm(range(args.iterations)):
+            image, edited = quad(
+                int(args.step**i),
+                image,
+                edited,
+                quads,
+                min_width=args.minwidth,
+                min_height=args.minheight,
+                set_border=args.border,
+            )
+
+            writer.append_data(copy)
+            if args.frames:
+                imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_{i}.png', copy)
+
+    if args.image:
+        imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_quad.png', copy)
+
+
+def main():
+    args = parse_args()
 
     # Try to load an image from the given input. If this fails, assume it's a video.
     try:
         image = imageio.imread(args.input)[:, :, :3]
     except Exception:
-        # Convert every frame of input video to quadtree image and store as output video.
-        with imageio.read(args.input) as video:
-            data = video.get_meta_data()
-
-            kwargs = {"fps": data["fps"], "quality": min(max(args.quality, 0), 10)}
-            if args.audio:
-                kwargs["audio_path"] = args.input
-
-            writer = imageio_ffmpeg.write_frames(
-                args.output, data["source_size"], **kwargs
-            )
-            writer.send(None)
-
-            quads = []
-            for frame in tqdm(video, total=int(data["fps"] * data["duration"] + 0.5)):
-                copy = frame.copy()
-                edited = copy
-                quad(
-                    args.iterations,
-                    frame,
-                    edited,
-                    quads,
-                    min_width=args.minwidth,
-                    min_height=args.minheight,
-                    set_border=args.border,
-                )
-                writer.send(edited)
-                quads.clear()
-
-            writer.close()
-
+        create_video(args)
     else:
         # Convert input image to quadtree image and save as output image.
         copy = image.copy()
         edited = copy
 
-        quads = []
-
         if args.animate:
-            with imageio.save(args.output, fps=args.fps) as writer:
-                for i in tqdm(range(args.iterations)):
-                    image, edited = quad(
-                        int(args.step**i),
-                        image,
-                        edited,
-                        quads,
-                        min_width=args.minwidth,
-                        min_height=args.minheight,
-                        set_border=args.border,
-                    )
-
-                    writer.append_data(copy)
-                    if args.frames:
-                        imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_{i}.png', copy)
-
-            if args.image:
-                imageio.imsave(f'{args.output.rsplit(".", 1)[0]}_quad.png', copy)
+            create_animation(args, copy)
         else:
+            quads = []
             quad(
                 args.iterations,
                 image,

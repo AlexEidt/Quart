@@ -12,12 +12,16 @@ Image Segmentation Animation using QuadTree concepts.
 <img src="Results/butterfly_quad.png" alt="Segmented Image of a Butterfly" />
 <img src="Results/canyon_quad.png" alt="Segmented Image of a Canyon" />
 <img src="Results/rocks_quad.png" alt="Segmented Image of some Rocks" />
+<img src="Results/palm_quad.png" alt="Segmented Image of some Palm Trees" />
 <img src="Results/prairie_quad.png" alt="Segmented Image of a Prairie" />
 <img src="Results/tree_quad.png" alt="Segmented Image of a tree on a cliff" />
 <img src="Results/tropical_quad.png" alt="Segmented Image of a Tropical Beach" />
+<img src="Results/waterfalls_quad.png" alt="Segmented Image of some Waterfalls" />
 <img src="Results/houses_quad.png" alt="Segmented Image of some Houses" />
 <img src="Results/abstract_quad.png" alt="Segmented Image of abstract housing" />
+<img src="Results/pipes_quad.png" alt="Segmented Image of some Pipes" />
 <img src="Results/sand_quad.png" alt="Segmented Image of some sandstone stairs" />
+<img src="Results/palace_quad.png" alt="Segmented Image of a Palace" />
 <img src="Results/land_quad.png" alt="Segmented Image of a Landscape" />
 <img src="Results/lightning_quad.png" alt="Segmented Image of Lightning" />
 <img src="Results/night_quad.png" alt="Segmented Image of a road at night" />

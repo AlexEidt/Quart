@@ -20,6 +20,7 @@ Image Segmentation Animation using QuadTree concepts.
 <img src="Results/houses_quad.png" alt="Segmented Image of some Houses" />
 <img src="Results/abstract_quad.png" alt="Segmented Image of abstract housing" />
 <img src="Results/pipes_quad.png" alt="Segmented Image of some Pipes" />
+<img src="Results/dominos.png" alt="Segmented Image of Dominos" />
 <img src="Results/sand_quad.png" alt="Segmented Image of some sandstone stairs" />
 <img src="Results/palace_quad.png" alt="Segmented Image of a Palace" />
 <img src="Results/land_quad.png" alt="Segmented Image of a Landscape" />

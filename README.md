@@ -44,16 +44,11 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -fps FPS              Output FPS.
   -q QUALITY, --quality QUALITY
                         Quality of the output video. (0-10), 0 worst, 10 best.
-  -a, --animate         Save intermediary frames as video.
   -i ITERATIONS, --iterations ITERATIONS
                         Number of iterations.
   -b, --border          Add borders to subimages.
-  -img, --image         Save final output image. For use with --animate only.
-  -s STEP, --step STEP  Only save a frame every `s^(iteration)` iterations. For use with --animate only.
-  -f, --frames          Save intermediary frames as images.
   -au, --audio          Add audio from the input file to the output file.
   -mw MINWIDTH, --minwidth MINWIDTH
                         Minimum width of the smallest image quadrant.

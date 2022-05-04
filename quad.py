@@ -10,6 +10,7 @@ Split that quadrant into four quadrants.
 Repeat N times.
 """
 
+import heapq
 import argparse
 import imageio
 import imageio_ffmpeg
@@ -62,7 +63,7 @@ def error(image):
 
 
 def quad(
-    iterations, image, edited, quads, min_width=10, min_height=10, set_border=True
+    iterations, image, edited, quads=None, min_width=10, min_height=10, set_border=True
 ):
     """
     Split the given image into four quadrants.
@@ -70,6 +71,8 @@ def quad(
     color of the original image.
     Find the quadrant with the maximum error, remove it from the "quads" list and return it.
     """
+    if quads is None:
+        quads = []
     if iterations <= 0:
         return image, edited
 
@@ -93,21 +96,17 @@ def quad(
             if set_border:
                 border(edited)
 
-            quads.append((error(top_left), top_left, edited[:half_h, :half_w]))
-            quads.append((error(top_right), top_right, edited[:half_h, half_w:]))
-            quads.append((error(bottom_left), bottom_left, edited[half_h:, :half_w]))
-            quads.append((error(bottom_right), bottom_right, edited[half_h:, half_w:]))
+            heapq.heappush(quads, (-error(top_left), (top_left, edited[:half_h, :half_w])))
+            heapq.heappush(quads, (-error(top_right), (top_right, edited[:half_h, half_w:])))
+            heapq.heappush(quads, (-error(bottom_left), (bottom_left, edited[half_h:, :half_w])))
+            heapq.heappush(quads, (-error(bottom_right), (bottom_right, edited[half_h:, half_w:])))
 
-        if quads:
-            data = max(quads, key=lambda x: x[0])
-            quads.remove(data)
-
-            image = data[1]
-            edited = data[2]
+        if len(quads):
+            _, (image, edited) = heapq.heappop(quads)
         else:
             break
 
-    return data[1:]
+    return image, edited
 
 
 def parse_args():
@@ -200,7 +199,7 @@ def create_video(args):
                 args.iterations,
                 frame,
                 edited,
-                quads,
+                quads=quads,
                 min_width=args.minwidth,
                 min_height=args.minheight,
                 set_border=args.border,
@@ -224,7 +223,7 @@ def create_animation(args, copy):
                 int(args.step**i),
                 image,
                 edited,
-                quads,
+                quads=quads,
                 min_width=args.minwidth,
                 min_height=args.minheight,
                 set_border=args.border,
@@ -254,12 +253,10 @@ def main():
         if args.animate:
             create_animation(args, copy)
         else:
-            quads = []
             quad(
                 args.iterations,
                 image,
                 edited,
-                quads,
                 min_width=args.minwidth,
                 min_height=args.minheight,
                 set_border=args.border,

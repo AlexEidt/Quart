@@ -42,9 +42,7 @@ def error(image, avg):
     """
     Compute the error of a given quadrant.
     """
-    if image.size == 0:
-        return 0
-    h, w = image.shape[:2]
+    h, w = image.shape
     mean = avg[0] * 0.299 + avg[1] * 0.587 + avg[2] * 0.114
     return np.sum((image - mean) ** 2) / (h * w)
 

@@ -97,13 +97,13 @@ def quad(image, edited, iterations, quadrants=None, min_width=10, min_height=10,
             if set_border:
                 border(edited[y:y+h, x:x+w])
 
-            heapq.heappush(quadrants, (-error(gray[y:y+hh, x:x+hw], tl_avg), (x, y, hw, hh)))
-            heapq.heappush(quadrants, (-error(gray[y:y+hh, x+hw:x+w], tr_avg), (x + hw, y, w - hw, hh)))
-            heapq.heappush(quadrants, (-error(gray[y+hh:y+h, x:x+hw], bl_avg), (x, y + hh, hw, h - hh)))
-            heapq.heappush(quadrants, (-error(gray[y+hh:y+h, x+hw:x+w], br_avg), (x + hw, y + hh, w - hw, h - hh)))
+            heapq.heappush(quadrants, (-error(gray[y:y+hh, x:x+hw], tl_avg), x, y, hw, hh))
+            heapq.heappush(quadrants, (-error(gray[y:y+hh, x+hw:x+w], tr_avg), x + hw, y, w - hw, hh))
+            heapq.heappush(quadrants, (-error(gray[y+hh:y+h, x:x+hw], bl_avg), x, y + hh, hw, h - hh))
+            heapq.heappush(quadrants, (-error(gray[y+hh:y+h, x+hw:x+w], br_avg), x + hw, y + hh, w - hw, h - hh))
 
         if quadrants:
-            _, (x, y, w, h) = heapq.heappop(quadrants)
+            _, x, y, w, h = heapq.heappop(quadrants)
         else:
             break
 

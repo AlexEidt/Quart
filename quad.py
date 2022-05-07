@@ -73,58 +73,37 @@ def quad(image, edited, iterations, quadrants=None, min_width=10, min_height=10,
     np.cumsum(I, axis=1, out=I)
 
     # Top left quadrant x and y coordinates.
-    tlx, tly = 0, 0
+    x, y = 0, 0
 
-    index = 0
     for _ in range(iterations):
-        h, w = image.shape[:2]
-
         if h > min_height and w > min_width:
             hw, hh = w // 2, h // 2
 
-            tlA, tlB, tlC, tlD = I[tly, tlx], I[tly, tlx+hw], I[tly+hh, tlx], I[tly+hh, tlx+hw]
-            trA, trB, trC, trD = I[tly, tlx+hw], I[tly, tlx+w], I[tly+hh, tlx+hw], I[tly+hh, tlx+w]
-            blA, blB, blC, blD = I[tly+hh, tlx], I[tly+hh, tlx+hw], I[tly+h, tlx], I[tly+h, tlx+hw]
-            brA, brB, brC, brD = I[tly+hh, tlx+hw], I[tly+hh, tlx+w], I[tly+h, tlx+hw], I[tly+h, tlx+w]
+            tlA, tlB, tlC, tlD = I[y, x], I[y, x+hw], I[y+hh, x], I[y+hh, x+hw]
+            trA, trB, trC, trD = I[y, x+hw], I[y, x+w], I[y+hh, x+hw], I[y+hh, x+w]
+            blA, blB, blC, blD = I[y+hh, x], I[y+hh, x+hw], I[y+h, x], I[y+h, x+hw]
+            brA, brB, brC, brD = I[y+hh, x+hw], I[y+hh, x+w], I[y+h, x+hw], I[y+h, x+w]
 
-            tl = image[:hh, :hw]
-            tr = image[:hh, hw:]
-            bl = image[hh:, :hw]
-            br = image[hh:, hw:]
+            tl_avg = (tlD + tlA - tlB - tlC) / (hw * hh)
+            tr_avg = (trD + trA - trB - trC) / ((w - hw) * hh)
+            bl_avg = (blD + blA - blB - blC) / (hw * (h - hh))
+            br_avg = (brD + brA - brB - brC) / ((w - hw) * (h - hh))
 
-            tlg = gray[:hh, :hw]
-            trg = gray[:hh, hw:]
-            blg = gray[hh:, :hw]
-            brg = gray[hh:, hw:]
-
-            (tlh, tlw), (trh, trw), (blh, blw), (brh, brw) = tlg.shape, trg.shape, blg.shape, brg.shape
-
-            tl_avg = (tlD + tlA - tlB - tlC) / (tlh * tlw)
-            tr_avg = (trD + trA - trB - trC) / (trh * trw)
-            bl_avg = (blD + blA - blB - blC) / (blh * blw)
-            br_avg = (brD + brA - brB - brC) / (brh * brw)
-
-            edited[:hh, :hw] = tl_avg
-            edited[:hh, hw:] = tr_avg
-            edited[hh:, :hw] = bl_avg
-            edited[hh:, hw:] = br_avg
+            edited[y:y+hh, x:x+hw] = tl_avg         # Top Left
+            edited[y:y+hh, x+hw:x+w] = tr_avg       # Top Right
+            edited[y+hh:y+h, x:x+hw] = bl_avg       # Bottom Left
+            edited[y+hh:y+h, x+hw:x+w] = br_avg     # Bottom Right
 
             if set_border:
-                border(edited)
+                border(edited[y:y+h, x:x+w])
 
-            # The "index" acts as a unique identifier for the quadrant. If the error of two quadrants is the same,
-            # "heapq" will attempt to compare the next parameter, which would normally be the actual image quadrant as an
-            # np array. This would result in a "truth value of an array is ambiguous" error. Instead, the next parameter
-            # is the "index" value, which is unique for every quadrant, which stops this error from occurring.
-            heapq.heappush(quadrants, (-error(tlg, tl_avg), index+0, (tl, edited[:hh, :hw], tlg, (tlx, tly))))
-            heapq.heappush(quadrants, (-error(trg, tr_avg), index+1, (tr, edited[:hh, hw:], trg, (tlx + hw, tly))))
-            heapq.heappush(quadrants, (-error(blg, bl_avg), index+2, (bl, edited[hh:, :hw], blg, (tlx, tly + hh))))
-            heapq.heappush(quadrants, (-error(brg, br_avg), index+3, (br, edited[hh:, hw:], brg, (tlx + hw, tly + hh))))
-
-            index += 4
+            heapq.heappush(quadrants, (-error(gray[y:y+hh, x:x+hw], tl_avg), (x, y, hw, hh)))
+            heapq.heappush(quadrants, (-error(gray[y:y+hh, x+hw:x+w], tr_avg), (x + hw, y, w - hw, hh)))
+            heapq.heappush(quadrants, (-error(gray[y+hh:y+h, x:x+hw], bl_avg), (x, y + hh, hw, h - hh)))
+            heapq.heappush(quadrants, (-error(gray[y+hh:y+h, x+hw:x+w], br_avg), (x + hw, y + hh, w - hw, h - hh)))
 
         if quadrants:
-            _, _, (image, edited, gray, (tlx, tly)) = heapq.heappop(quadrants)
+            _, (x, y, w, h) = heapq.heappop(quadrants)
         else:
             break
 

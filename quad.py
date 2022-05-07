@@ -64,7 +64,7 @@ def quad(image, edited, iterations, quadrants=None, min_width=10, min_height=10,
     if quadrants is None:
         quadrants = []
 
-    gray = (image * np.array([0.299, 0.587, 0.114])).sum(axis=2)
+    gray = (image * np.array([0.299, 0.587, 0.114])).sum(axis=2, dtype=np.uint8)
 
     h, w = image.shape[:2]
     # Create the integral image, edge padded by one to the top and left.

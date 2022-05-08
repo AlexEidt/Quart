@@ -33,20 +33,21 @@ Image Segmentation Animation using QuadTree concepts.
 ## Usage
 
 ```
+usage: quad.py [-h] [-q QUALITY] [-b] [-au] [-mw MINWIDTH] [-mh MINHEIGHT] input output iterations
+
 Quadtree Image Segmentation.
 
 positional arguments:
   input                 Image to segment.
   output                Output filename.
+  iterations            Number of segmentation iterations.
 
 optional arguments:
   -h, --help            show this help message and exit
   -q QUALITY, --quality QUALITY
                         Quality of the output video. (0-10), 0 worst, 10 best.
-  -i ITERATIONS, --iterations ITERATIONS
-                        Number of iterations.
   -b, --border          Add borders to subimages.
-  -au, --audio          Add audio from the input file to the output file.
+  -a, --audio           Add audio from the input file to the output file.
   -mw MINWIDTH, --minwidth MINWIDTH
                         Minimum width of the smallest image quadrant.
   -mh MINHEIGHT, --minheight MINHEIGHT

@@ -92,10 +92,10 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Quadtree Image Segmentation.")
     parser.add_argument("input", type=str, help="Image to segment.")
     parser.add_argument("output", type=str, help="Output filename.")
+    parser.add_argument("iterations", type=int, help="Number of segmentation iterations.")
     parser.add_argument("-q", "--quality", type=int, default=5, help="Quality of the output video. (0-10), 0 worst, 10 best.")
-    parser.add_argument("-i", "--iterations", type=int, default=12, help="Number of iterations.")
     parser.add_argument("-b", "--border", action="store_true", help="Add borders to subimages.")
-    parser.add_argument("-au", "--audio", action="store_true", help="Add audio from the input file to the output file.")
+    parser.add_argument("-a", "--audio", action="store_true", help="Add audio from the input file to the output file.")
     parser.add_argument("-mw", "--minwidth", type=int, default=10, help="Minimum width of the smallest image quadrant.")
     parser.add_argument("-mh", "--minheight", type=int, default=10, help="Minimum height of the smallest image quadrant.")
 

@@ -23,19 +23,10 @@ def border(image):
     Add a black border around the given image quadrant.
     Add two black lines in the middle of the quadrant vertically and horizontally.
     """
-    # Add black border
     image[0, :] = 0
     image[-1, :] = 0
     image[:, 0] = 0
     image[:, -1] = 0
-
-    h, w = image.shape[:2]
-    half_w = w // 2
-    half_h = h // 2
-    # Horizontal Line
-    image[half_h : half_h + 1, :] = 0
-    # Vertical Line
-    image[:, half_w : half_w + 1] = 0
 
 
 def error(image, avg):
@@ -93,7 +84,10 @@ def quad(image, edited, iterations, quadrants=None, min_width=10, min_height=10,
             edited[y+hh:y+h, x+hw:x+w] = br_avg     # Bottom Right
 
             if set_border:
-                border(edited[y:y+h, x:x+w])
+                border(edited[y:y+hh, x:x+hw])
+                border(edited[y:y+hh, x+hw:x+w])
+                border(edited[y+hh:y+h, x:x+hw])
+                border(edited[y+hh:y+h, x+hw:x+w])
 
             heapq.heappush(quadrants, (-error(gray[y:y+hh, x:x+hw], tl_avg), x, y, hw, hh))
             heapq.heappush(quadrants, (-error(gray[y:y+hh, x+hw:x+w], tr_avg), x + hw, y, w - hw, hh))

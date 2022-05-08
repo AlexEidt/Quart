@@ -19,10 +19,7 @@ from tqdm import tqdm
 
 
 def border(image):
-    """
-    Add a black border around the given image quadrant.
-    Add two black lines in the middle of the quadrant vertically and horizontally.
-    """
+    # Add a black border around the given image quadrant.
     image[0, :] = 0
     image[-1, :] = 0
     image[:, 0] = 0
@@ -30,9 +27,7 @@ def border(image):
 
 
 def error(image, avg):
-    """
-    Compute the error of a given quadrant.
-    """
+    # Compute the error of a given quadrant.
     h, w = image.shape
     mean = avg[0] * 0.299 + avg[1] * 0.587 + avg[2] * 0.114
     return np.sum((image - mean) ** 2) / (h * w)
@@ -40,16 +35,9 @@ def error(image, avg):
 
 def quad(image, edited, iterations, quadrants=None, min_width=10, min_height=10, set_border=True):
     """
-    Split the given image into four quadrants.
-    Update the edited image by coloring in the newly split quadrants to the average rgb
-    color of the original image.
-    Find the quadrant with the maximum error, remove it from the "quadrants" list and return it.
-
+    Performs the quadtree segmentation algorithm on the image.
     The resulting quadtree image is stored in "edited".
     """
-    if iterations <= 0:
-        return image, edited
-
     if quadrants is None:
         quadrants = []
 
@@ -115,9 +103,6 @@ def parse_args():
 
 
 def quadtree_video(args):
-    """
-    Convert every frame of a video to a quadtree image.
-    """
     # Convert every frame of input video to quadtree image and store as output video.
     with imageio.read(args.input) as video:
         data = video.get_meta_data()

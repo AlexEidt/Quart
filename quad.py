@@ -15,7 +15,7 @@ import argparse
 import imageio
 import imageio_ffmpeg
 import numpy as np
-from tqdm import tqdm
+from tqdm import trange, tqdm
 
 
 def border(image):
@@ -26,11 +26,9 @@ def border(image):
     image[:, -1] = 0
 
 
-def error(image, avg):
-    # Compute the error of a given quadrant.
-    h, w = image.shape
-    mean = avg[0] * 0.299 + avg[1] * 0.587 + avg[2] * 0.114
-    return np.sum((image - mean) ** 2) / (h * w)
+def error(total, squared, n):
+    # Compute the error of a given quadrant as the sum of squared error.
+    return (squared - (total * total / n)) / n
 
 
 def quad(image, edited, iterations, quadrants=None, min_width=10, min_height=10, set_border=True):
@@ -41,35 +39,61 @@ def quad(image, edited, iterations, quadrants=None, min_width=10, min_height=10,
     if quadrants is None:
         quadrants = []
 
-    gray = (image * np.array([0.299, 0.587, 0.114])).sum(axis=2, dtype=np.uint8)
-
     h, w = image.shape[:2]
     # Create the integral image, edge padded by one to the top and left.
     I = np.pad(image.astype(np.uint32), ((1, 0), (1, 0), (0, 0)), mode='edge')
     np.cumsum(I, axis=0, out=I)
     np.cumsum(I, axis=1, out=I)
 
+    np.multiply(image, np.array([0.299, 0.587, 0.114]), out=image, casting='unsafe')
+    np.sum(image, axis=2, dtype=np.uint8, out=image[..., 0])
+
+    gray = np.pad(image[..., 0], ((1, 0), (1, 0)), mode='edge')
+
+    # Create the integral image of all gray values, edge padded by one to the top and left.
+    Ig = gray.astype(np.uint64)
+    np.cumsum(Ig, axis=0, out=Ig)
+    np.cumsum(Ig, axis=1, out=Ig)
+    # Create the integral image of all gray values squared, edge padded by one to the top and left.
+    Isq = gray.astype(np.uint64)
+    np.multiply(Isq, Isq, out=Isq)
+    np.cumsum(Isq, axis=0, out=Isq)
+    np.cumsum(Isq, axis=1, out=Isq)
+
+    del gray
+
     # Top left quadrant x and y coordinates.
     x, y = 0, 0
 
-    for _ in range(iterations):
+    for _ in trange(iterations):
         if h > min_height and w > min_width:
             hw, hh = w // 2, h // 2
 
-            tlA, tlB, tlC, tlD = I[y, x], I[y, x+hw], I[y+hh, x], I[y+hh, x+hw]
-            trA, trB, trC, trD = I[y, x+hw], I[y, x+w], I[y+hh, x+hw], I[y+hh, x+w]
-            blA, blB, blC, blD = I[y+hh, x], I[y+hh, x+hw], I[y+h, x], I[y+h, x+hw]
-            brA, brB, brC, brD = I[y+hh, x+hw], I[y+hh, x+w], I[y+h, x+hw], I[y+h, x+w]
+            # Original Image Integral Image bounding box
+            tl = I[y+hh, x+hw] + I[y, x] - I[y, x+hw] - I[y+hh, x]          # Top Left
+            tr = I[y+hh, x+w] + I[y, x+hw] - I[y, x+w] - I[y+hh, x+hw]      # Top Right
+            bl = I[y+h, x+hw] + I[y+hh, x] - I[y+hh, x+hw] - I[y+h, x]      # Bottom Left
+            br = I[y+h, x+w] + I[y+hh, x+hw] - I[y+hh, x+w] - I[y+h, x+hw]  # Bottom Right
+            # Squared Grayscale Image Integral Image bounding box
+            tls = Isq[y+hh, x+hw] + Isq[y, x] - Isq[y, x+hw] - Isq[y+hh, x]
+            trs = Isq[y+hh, x+w] + Isq[y, x+hw] - Isq[y, x+w] - Isq[y+hh, x+hw]
+            bls = Isq[y+h, x+hw] + Isq[y+hh, x] - Isq[y+hh, x+hw] - Isq[y+h, x]
+            brs = Isq[y+h, x+w] + Isq[y+hh, x+hw] - Isq[y+hh, x+w] - Isq[y+h, x+hw]
+            # Grayscale Image Integral Image bounding box
+            tlg = Ig[y+hh, x+hw] + Ig[y, x] - Ig[y, x+hw] - Ig[y+hh, x]
+            trg = Ig[y+hh, x+w] + Ig[y, x+hw] - Ig[y, x+w] - Ig[y+hh, x+hw]
+            blg = Ig[y+h, x+hw] + Ig[y+hh, x] - Ig[y+hh, x+hw] - Ig[y+h, x]
+            brg = Ig[y+h, x+w] + Ig[y+hh, x+hw] - Ig[y+hh, x+w] - Ig[y+h, x+hw]
 
-            tl_avg = (tlD + tlA - tlB - tlC) / (hw * hh)
-            tr_avg = (trD + trA - trB - trC) / ((w - hw) * hh)
-            bl_avg = (blD + blA - blB - blC) / (hw * (h - hh))
-            br_avg = (brD + brA - brB - brC) / ((w - hw) * (h - hh))
+            tlw, tlh = hw, hh
+            trw, trh = w - hw, hh
+            blw, blh = hw, h - hh
+            brw, brh = w - hw, h - hh
 
-            edited[y:y+hh, x:x+hw] = tl_avg         # Top Left
-            edited[y:y+hh, x+hw:x+w] = tr_avg       # Top Right
-            edited[y+hh:y+h, x:x+hw] = bl_avg       # Bottom Left
-            edited[y+hh:y+h, x+hw:x+w] = br_avg     # Bottom Right
+            edited[y:y+hh, x:x+hw] = tl / (tlw * tlh)
+            edited[y:y+hh, x+hw:x+w] = tr / (trw * trh)
+            edited[y+hh:y+h, x:x+hw] = bl / (blw * blh)
+            edited[y+hh:y+h, x+hw:x+w] = br / (brw * brh)
 
             if set_border:
                 border(edited[y:y+hh, x:x+hw])
@@ -77,10 +101,10 @@ def quad(image, edited, iterations, quadrants=None, min_width=10, min_height=10,
                 border(edited[y+hh:y+h, x:x+hw])
                 border(edited[y+hh:y+h, x+hw:x+w])
 
-            heapq.heappush(quadrants, (-error(gray[y:y+hh, x:x+hw], tl_avg), x, y, hw, hh))
-            heapq.heappush(quadrants, (-error(gray[y:y+hh, x+hw:x+w], tr_avg), x + hw, y, w - hw, hh))
-            heapq.heappush(quadrants, (-error(gray[y+hh:y+h, x:x+hw], bl_avg), x, y + hh, hw, h - hh))
-            heapq.heappush(quadrants, (-error(gray[y+hh:y+h, x+hw:x+w], br_avg), x + hw, y + hh, w - hw, h - hh))
+            heapq.heappush(quadrants, (-error(tlg, tls, tlw * tlh), x, y, tlw, tlh))
+            heapq.heappush(quadrants, (-error(trg, trs, trw * trh), x + hw, y, trw, trh))
+            heapq.heappush(quadrants, (-error(blg, bls, blw * blh), x, y + hh, blw, blh))
+            heapq.heappush(quadrants, (-error(brg, brs, brw * brh), x + hw, y + hh, brw, brh))
 
         if quadrants:
             _, x, y, w, h = heapq.heappop(quadrants)

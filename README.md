@@ -8,27 +8,38 @@ Image Segmentation Animation using QuadTree concepts.
 
 ## Images
 
-<img src="Results/acacia_quad.png" alt="Segmented Image of an Acacia Tree" />
-<img src="Results/rocks_quad.png" alt="Segmented Image of some Rocks" />
-<img src="Results/palm_quad.png" alt="Segmented Image of some Palm Trees" />
-<img src="Results/prairie_quad.png" alt="Segmented Image of a Prairie" />
-<img src="Results/tree_quad.png" alt="Segmented Image of a tree on a cliff" />
-<img src="Results/river_quad.png" alt="Segmented Image of a river" />
-<img src="Results/tropical_quad.png" alt="Segmented Image of a Tropical Beach" />
-<img src="Results/coastline_quad.png" alt="Segmented Image of a Coastline" />
-<img src="Results/waterfalls_quad.png" alt="Segmented Image of some Waterfalls" />
-<img src="Results/houses_quad.png" alt="Segmented Image of some Houses" />
-<img src="Results/pipes_quad.png" alt="Segmented Image of some Pipes" />
-<img src="Results/sand_quad.png" alt="Segmented Image of some sandstone stairs" />
-<img src="Results/palace_quad.png" alt="Segmented Image of a Palace" />
-<img src="Results/land_quad.png" alt="Segmented Image of a Landscape" />
-<img src="Results/lightning_quad.png" alt="Segmented Image of Lightning" />
-<img src="Results/night_quad.png" alt="Segmented Image of a road at night" />
-<img src="Results/road_quad.png" alt="Segmented Image of a twisty road" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/acacia_quad.png" alt="Segmented Image of an Acacia Tree" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/rocks_quad.png" alt="Segmented Image of some Rocks" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/palm_quad.png" alt="Segmented Image of some Palm Trees" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/prairie_quad.png" alt="Segmented Image of a Prairie" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/tree_quad.png" alt="Segmented Image of a tree on a cliff" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/river_quad.png" alt="Segmented Image of a river" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/tropical_quad.png" alt="Segmented Image of a Tropical Beach" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/coastline_quad.png" alt="Segmented Image of a Coastline" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/moon_quad.png" alt="Segmented Image of Moonlight" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/waterfalls_quad.png" alt="Segmented Image of some Waterfalls" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/houses_quad.png" alt="Segmented Image of some Houses" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/pipes_quad.png" alt="Segmented Image of some Pipes" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/sand_quad.png" alt="Segmented Image of some sandstone stairs" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/palace_quad.png" alt="Segmented Image of a Palace" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/land_quad.png" alt="Segmented Image of a Landscape" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/lightning_quad.png" alt="Segmented Image of Lightning" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/night_quad.png" alt="Segmented Image of a road at night" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/road_quad.png" alt="Segmented Image of a twisty road" />
+
+## Borders
+
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/mountain.jpg" alt="Image of a Mountain Road" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/mountain_quad.png" alt="Segmented Image of a Mountain Road" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/mountain_quad_noborder.png" alt="Segmented Image of a Mountain Road - No Borders" />
+
+## Compression
+
+With or without borders, the quadtree images achieve great compression, especially when using `png` encoding. Looking at the Mountain Images above, the original is a `1.51 MB jpg` file (`7.89 MB` when converted to `png`), while the Quadtree Image with borders is a `333 KB png` and the one without borders is a `160 KB png`.
 
 ## Video
 
-<img src="Results/fish.gif" alt="Fish Video" />
+<img src="https://github.com/AlexEidt/docs/blob/master/Quadtree/fish.gif" alt="Fish Video" />
 
 ## Usage
 

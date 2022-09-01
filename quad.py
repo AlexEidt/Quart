@@ -41,7 +41,7 @@ def quad(image, edited, iterations, quadrants=None, min_width=10, min_height=10,
 
     h, w = image.shape[:2]
     # Create the integral image, edge padded by one to the top and left.
-    I = np.pad(image.astype(np.uint32), ((1, 0), (1, 0), (0, 0)), mode='edge')
+    I = np.pad(image.astype(np.uint64), ((1, 0), (1, 0), (0, 0)), mode='edge')
     np.cumsum(I, axis=0, out=I)
     np.cumsum(I, axis=1, out=I)
 

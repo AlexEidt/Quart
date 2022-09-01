@@ -1,4 +1,4 @@
-# QuadTree
+# Quart
 
 Image Segmentation Animation using QuadTree concepts.
 
